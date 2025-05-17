@@ -1,0 +1,15 @@
+artifact_uri: file:D:/Submission_Sistem Machine Learning/Eksperimen_SML_Rafif/preprocessing/output/mlruns/863490789924209995/7ac1a8513a034d31a03aa7e7fad01c45/artifacts
+end_time: 1747464318866
+entry_point_name: ''
+experiment_id: '863490789924209995'
+lifecycle_stage: active
+run_id: 7ac1a8513a034d31a03aa7e7fad01c45
+run_name: Preprocessing_Run
+run_uuid: 7ac1a8513a034d31a03aa7e7fad01c45
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747464318675
+status: 3
+tags: []
+user_id: Rafif Idris Ardhana
