@@ -1,9 +1,10 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
 import os
 import mlflow
 
-def preprocessing_data(filepath):
+def preprocessing_data(filepath,output_dir):
     # Load dataset
     df = pd.read_csv(filepath)
 
@@ -66,7 +67,27 @@ def preprocessing_data(filepath):
     numeric_columns = ["tenure", "MonthlyCharges", "TotalCharges"]
     df[numeric_columns] = scaler.fit_transform(df[numeric_columns])
 
-    return df
+    # Split fitur dan target
+    X = df.drop("Churn", axis=1)
+    y = df["Churn"]    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Simpan hasil split
+    os.makedirs(output_dir, exist_ok=True)
+    X_train.to_csv(os.path.join(output_dir, "X_train.csv"), index=False)
+    X_test.to_csv(os.path.join(output_dir, "X_test.csv"), index=False)
+    y_train.to_csv(os.path.join(output_dir, "y_train.csv"), index=False)
+    y_test.to_csv(os.path.join(output_dir, "y_test.csv"), index=False)
+
+    return {
+        "rows_clean": df.shape[0],
+        "files": [
+            os.path.join(output_dir, "X_train.csv"),
+            os.path.join(output_dir, "X_test.csv"),
+            os.path.join(output_dir, "y_train.csv"),
+            os.path.join(output_dir, "y_test.csv"),
+        ]
+    }
 
 if __name__ == "__main__":
     input_file = os.path.join(os.environ.get("GITHUB_WORKSPACE", "."), "dataset_raw/telco-customer-churn_raw.csv")
@@ -79,16 +100,14 @@ if __name__ == "__main__":
     os.makedirs(mlruns_path, exist_ok=True)
 
     mlflow.set_tracking_uri(f"file:{mlruns_path}")
-
     mlflow.set_experiment("Preprocessing_Experiment")
 
     with mlflow.start_run(run_name="Preprocessing_Run"):
-        df_clean = preprocessing_data(input_file)
-
-        output_path = os.path.join(output_dir, "telco-customer-churn_preprocessing.csv")
-        df_clean.to_csv(output_path, index=False)
+        result = preprocessing_data(input_file, output_dir)
 
         mlflow.log_param("input_file", input_file)
-        mlflow.log_param("output_file", output_path)
-        mlflow.log_metric("rows_clean", df_clean.shape[0])
-        mlflow.log_artifact(output_path)
+        mlflow.log_param("output_dir", output_dir)
+        mlflow.log_metric("rows_clean", result["rows_clean"])
+
+        for f in result:
+            mlflow.log_artifact(f)
