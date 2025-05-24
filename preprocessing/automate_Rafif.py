@@ -109,5 +109,5 @@ if __name__ == "__main__":
         mlflow.log_param("output_dir", output_dir)
         mlflow.log_metric("rows_clean", result["rows_clean"])
 
-        for f in result:
+        for f in result["files"]:
             mlflow.log_artifact(f)
